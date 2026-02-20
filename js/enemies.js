@@ -691,6 +691,7 @@ export const enemy_types = [
         hit_spd: 0,
         hit_opacity: 0,
         fast: true,
+        can_swim: true,
         squash_amount: 1,
         hurtbox: {
           invincible_to_id: -1,
@@ -1418,6 +1419,7 @@ export const enemy_types = [
         dir_index: 0,
         dir: starting_direction,
         dead: false,
+        can_swim: true,
 
         invincible: false,
 
@@ -2108,6 +2110,7 @@ export const enemy_types = [
         hit_spd: 0,
         hit_opacity: 0,
         squash_amount: 1,
+        can_swim: true,
         hurtbox: {
           invincible_to_id: -1,
           x: 0,
@@ -3096,6 +3099,7 @@ export const enemy_types = [
         hit_spd: 0,
         hit_opacity: 0,
         squash_amount: 1,
+        can_swim: true,
         hurtbox: {
           invincible_to_id: -1,
           x: 0,

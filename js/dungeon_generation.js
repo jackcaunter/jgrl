@@ -329,7 +329,6 @@ function generateTiles(room) {
   if (room.pre_boss_room_dimensions) {
     const EXTRA_COLUMNS = 10;
 
-    // Thicken left wall
     for (
       let row = WALL_WIDTH_TILES;
       row < ROOM_HEIGHT_TILES - WALL_WIDTH_TILES;
@@ -337,9 +336,7 @@ function generateTiles(room) {
     ) {
       map[row] =
         "1".repeat(WALL_WIDTH_TILES + EXTRA_COLUMNS) +
-        ".".repeat(
-          ROOM_WIDTH_TILES - 2 * (WALL_WIDTH_TILES + EXTRA_COLUMNS) + 1,
-        ) +
+        ".".repeat(ROOM_WIDTH_TILES - 2 * (WALL_WIDTH_TILES + EXTRA_COLUMNS)) +
         "1".repeat(WALL_WIDTH_TILES + EXTRA_COLUMNS);
     }
   }
