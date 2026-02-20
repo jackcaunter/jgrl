@@ -3348,7 +3348,7 @@ export const enemy_types = [
         my_damage = 2;
         sprite_name = "lebum";
         pregame_text = [
-          `${ch_names[selected_character]} i cant believe u made it again...`,
+          `${ch_names[selected_character]} i cant believe u made it\nagain...`,
           `this time it wont be so easy...`,
           `even tho it will be kind of similar to last time...\nbecause my boss attack patterns are the same\njust faster...`,
           "prepare urself2",
@@ -3361,7 +3361,7 @@ export const enemy_types = [
         ];
       } else if (current_room.biome === "castle") {
         level = 3;
-        starting_hp = 600;
+        starting_hp = 400;
         my_damage = 2;
         sprite_name = "ibdw";
         final_boss = true;
@@ -3408,6 +3408,8 @@ export const enemy_types = [
         teleport_state: "none", // 'none', 'disappearing', 'waiting', 'telegraphing', 'appearing'
         telegraph_x: 0, // Where the boss will reappear
         telegraph_y: 0,
+        boss_cycle: 0,
+        hp_since_last_cycle: 0,
         has_spawned_phase2_enemies: false,
 
         invincible: false,
@@ -3519,6 +3521,7 @@ export const enemy_types = [
 
             // Clamp hp to not exceed max_hp
             this.hp = Math.min(this.hp, this.max_hp);
+            this.hp_since_last_cycle = this.hp;
 
             if (this.frame_count >= TOTAL_FRAMES + FRAMES_PAST_ZERO) {
               this.phase = `phase1`;
@@ -3706,31 +3709,32 @@ export const enemy_types = [
 
           if (level === 3) {
             // Final boss - ibdw
-            // Fast movement speed
-            this.move_speed = 2;
+
+            if (this.boss_cycle === 0) {
+              this.move_speed = 2;
+            }
+
             if (this.hp < this.max_hp / 2) {
-              this.move_speed = 3; // Ultra fast at half health
+              //do nothing
             }
 
             // Teleport attack - disappear and spawn enemies
             if (this.teleport_state === "none") {
               this.frames_to_teleport -= 1;
 
-              // Teleport more frequently at half health
               if (
-                this.hp < this.max_hp / 2 &&
-                !this.has_spawned_phase2_enemies
+                this.frames_to_teleport < 1 ||
+                this.hp_since_last_cycle - this.hp > 60
               ) {
-                this.frames_to_teleport -= 1; // Count down twice as fast
-              }
-
-              if (this.frames_to_teleport < 1) {
                 this.teleport_state = "disappearing";
+                // move hurtbox out of the way so that we cant hurt the player
+                this.hurtbox.x = -10000;
                 this.teleport_frame_count = 0;
                 this.invisible = true;
               }
             } else if (this.teleport_state === "disappearing") {
               this.teleport_frame_count++;
+              this.invincible = true;
 
               if (this.teleport_frame_count === 20) {
                 sounds.noix_down.play();
@@ -3740,27 +3744,22 @@ export const enemy_types = [
               // Disappearing phase - flash visible/invisible and spawn enemies
               // After 60 frames (1 second), move to waiting state
               if (this.teleport_frame_count >= 60) {
-                // Spawn 3 random enemies at quarter of the disappearing phase
-                const spawn_positions = [
-                  { x: 60, y: 60 },
-                  { x: 200, y: 60 },
-                  { x: 130, y: 120 },
-                ];
+                // Determine enemy count based on boss cycle (starts at 3, caps at 6)
+                const enemy_count = Math.min(3 + this.boss_cycle, 6);
 
-                // Minimum safe distance (player is 8x8, enemy is 24x24, so we need clearance)
-                const MIN_DISTANCE = 40; // Safe buffer to ensure no overlap
+                // Y position based on player's vertical position
+                const spawn_y = my_player.y > ROOM_HEIGHT_PIXELS / 2 ? 40 : 120;
 
-                spawn_positions.forEach((pos, index) => {
-                  // Check if this position is too close to the player
-                  const dx = pos.x - my_player.x;
-                  const dy = pos.y - my_player.y;
-                  const distance = Math.sqrt(dx * dx + dy * dy);
-
-                  if (distance < MIN_DISTANCE) {
-                    // Too close! Move to fallback position
-                    spawn_positions[index] = { x: 200, y: 130 };
-                  }
-                });
+                // Evenly distribute X positions across the room
+                const spawn_positions = [];
+                for (let i = 0; i < enemy_count; i++) {
+                  const spawn_x = Math.round(
+                    50 +
+                      (i * (ROOM_WIDTH_PIXELS - 100)) /
+                        Math.max(enemy_count - 1, 1),
+                  );
+                  spawn_positions.push({ x: spawn_x, y: spawn_y });
+                }
 
                 const all_enemy_names = [
                   "5mower",
@@ -3775,7 +3774,7 @@ export const enemy_types = [
                   "bruvchamp",
                 ];
                 const dirs = ["DR", "DL", "UR", "UL"];
-                for (let i = 0; i < 3; i++) {
+                for (let i = 0; i < enemy_count; i++) {
                   const random_enemy_type =
                     all_enemy_names[
                       Math.floor(Math.random() * all_enemy_names.length)
@@ -3795,10 +3794,7 @@ export const enemy_types = [
                 if (this.teleport_frame_count >= 60) {
                   this.teleport_state = "waiting";
                   this.invisible = true;
-                  // move hurtbox out of the way so that we cant hurt the player
-                  this.hurtbox.x = -10000;
                   this.teleport_frame_count = 0;
-                  // Set the position where boss will reappear
                   this.telegraph_x = getRandomInt(40, ROOM_WIDTH_PIXELS - 90);
                   this.telegraph_y = getRandomInt(40, ROOM_HEIGHT_PIXELS - 90);
                 }
@@ -3823,7 +3819,7 @@ export const enemy_types = [
               // Telegraph for 2 seconds (120 frames at 60fps)
               if (this.teleport_frame_count >= 120) {
                 // wait for 2 seconds after reappearing
-                this.frames_to_wait_after_reappearing = 120;
+                this.frames_to_wait_after_reappearing = 60;
                 this.dir = "right";
                 this.dir_index = 0;
 
@@ -3836,11 +3832,40 @@ export const enemy_types = [
                 this.invisible = false;
                 this.reset_hurtbox();
 
-                // Set next teleport time
-                if (this.hp < this.max_hp / 2) {
-                  this.frames_to_teleport = getRandomInt(7, 9) * 60; // Faster at low health
+                // Set next teleport time based on boss cycle
+                if (this.boss_cycle < 4) {
+                  this.frames_to_teleport = getRandomInt(6, 8) * 60;
                 } else {
-                  this.frames_to_teleport = getRandomInt(9, 12) * 60;
+                  this.frames_to_teleport = getRandomInt(3, 7) * 60;
+                }
+                // Increment boss cycle since we have completed a cycle
+                this.boss_cycle++;
+                // save hp
+                this.hp_since_last_cycle = this.hp;
+                // Fast movement speed based on cycle
+                //
+                switch (this.boss_cycle) {
+                  case 0:
+                    this.move_speed = 2;
+                    break;
+                  case 1:
+                    this.move_speed = 3;
+                    break;
+                  case 2:
+                    this.move_speed = 4;
+                    break;
+                  case 3:
+                    this.move_speed = 5;
+                    break;
+                  case 4:
+                    this.move_speed = 1.5;
+                    break;
+                  case 5:
+                    this.move_speed = 6;
+                    break;
+                  default:
+                    this.move_speed = getRandomInt(1, 7);
+                    break;
                 }
               }
             }

@@ -28,6 +28,7 @@ export function instantiate_room_char_select() {
       }
     }
   }
+  onCharacterUnlocked();
 
   // ----------------------------------------- ----------------------------------------- BG + BGM
   active_entities.push({
@@ -691,6 +692,7 @@ export function instantiate_room_char_select() {
                     globalThis.unlocked_a_character.toString(),
                   );
                   sounds.selected.play();
+                  onCharacterUnlocked();
                   return;
                 }
                 sounds.spawn_4shrug.play();

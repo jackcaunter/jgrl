@@ -2,13 +2,18 @@ import { enemy_types } from "./enemies.js";
 
 export function setGlobals() {
   loadSavedData();
+  loadStats();
 
   globalThis.mode = "PRODUCTION";
   // globalThis.mode = "DEVELOPMENT";
   //
   //
 
-  console.log("Runnning in development!");
+  if (mode === "DEVELOPMENT") {
+    console.log("really Runnning in development!");
+  } else {
+    console.log("really Runnning in PRODUCTION!");
+  }
 
   globalThis.ROOMS = [
     "rm_cylindrical_studios",
@@ -389,3 +394,55 @@ const aenemy_names = [
   "kekw2",
   "bruvchamp",
 ];
+
+const DEFAULT_STATS = {
+  frames: 0,
+  enemiesDefeated: 0,
+  enemiesDefeatedThisRun: 0,
+  upgradesCollected: 0,
+  upgradesCollectedThisRun: 0,
+  deaths: 0,
+  charactersUnlocked: 0,
+};
+globalThis.stats = DEFAULT_STATS;
+
+globalThis.saveStats = function () {
+  localStorage.setItem("gameStats", JSON.stringify(stats));
+};
+
+globalThis.loadStats = function () {
+  const saved = localStorage.getItem("gameStats");
+  globalThis.stats = saved
+    ? { ...DEFAULT_STATS, ...JSON.parse(saved) }
+    : { ...DEFAULT_STATS };
+  stats.enemiesDefeatedThisRun = 0;
+  stats.upgradesCollectedThisRun = 0;
+};
+
+globalThis.onEnemyDefeated = function () {
+  stats.enemiesDefeated++;
+  stats.enemiesDefeatedThisRun++;
+  saveStats();
+};
+
+globalThis.onUpgradeCollected = function () {
+  stats.upgradesCollected++;
+  stats.upgradesCollectedThisRun++;
+  saveStats();
+};
+
+globalThis.onDeath = function () {
+  stats.deaths++;
+  stats.enemiesDefeatedThisRun = 0;
+  stats.upgradesCollectedThisRun = 0;
+
+  saveStats();
+};
+
+globalThis.onCharacterUnlocked = function () {
+  stats.charactersUnlocked = Object.values(characterUnlocked).filter(
+    (value) => value === true,
+  ).length;
+
+  saveStats();
+};

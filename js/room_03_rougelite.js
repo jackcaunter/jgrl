@@ -2647,6 +2647,7 @@ export function instantiate_room_rougelite() {
           return;
         }
         this.dead = true;
+        onDeath();
         create_deathscreen();
       },
       get_hit(damage, angle) {
@@ -2716,10 +2717,13 @@ export function instantiate_room_rougelite() {
         }
 
         if (
-          my_enemy_manager.instances.find((instance) => {
+          my_enemy_manager.enemies.find((instance) => {
             return instance.type === "4head";
           })
         ) {
+          this.xspd = 0;
+          this.yspd = 0;
+          console.log("4headeda");
           sword_swingin = false;
           sword_swingin_timer = 0;
           sword_swing_frame = 0;
@@ -3452,6 +3456,7 @@ export function instantiate_room_rougelite() {
                     //TEST. DIE FUNCTION.
                     if (typeof enemy.die === "function") {
                       enemy.die();
+                      onEnemyDefeated();
                       return;
                     }
 
@@ -3512,6 +3517,7 @@ export function instantiate_room_rougelite() {
               // Collision detected
               instance.get_collected();
               instance.dead = true;
+              onUpgradeCollected();
             }
             // No collision
           }

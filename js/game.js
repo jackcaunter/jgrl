@@ -63,6 +63,7 @@ window.draw = function () {
   startMeasuringFrameTime();
 
   updateGameLogic();
+  updateGameStats();
   g.resetMatrix();
   drawGameToGameboyScreen();
   drawGameboyScreenToCanvas();
@@ -83,6 +84,15 @@ function updateGameLogic() {
       i--; //recheck;
     }
   }
+}
+
+function updateGameStats() {
+  if (current_room === "rm_credits_scroll") {
+    // no increment in credits
+    return;
+  }
+  stats.frames++;
+  if (stats.frames % 60 === 0) saveStats();
 }
 
 function drawGameToGameboyScreen() {
