@@ -3,8 +3,8 @@ import { enemy_types } from "./enemies.js";
 export function setGlobals() {
   loadSavedData();
 
-  // globalThis.mode = "PRODUCTION";
-  globalThis.mode = "DEVELOPMENT";
+  globalThis.mode = "PRODUCTION";
+  // globalThis.mode = "DEVELOPMENT";
   //
   //
 
