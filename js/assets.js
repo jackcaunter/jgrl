@@ -7,7 +7,11 @@ let ROOT_DIR = "../";
 
 const hostname = window.location.hostname;
 
-if (hostname === "jack.caunter.ca" || hostname === "jackcaunter.com") {
+if (
+  hostname === "jack.caunter.ca" ||
+  hostname === "jackcaunter.com" ||
+  hostname === "jackcaunter.github.io"
+) {
   console.log("Running in production!");
   const location = window.location;
   const fullPath =
