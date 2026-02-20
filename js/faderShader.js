@@ -6,7 +6,7 @@ export function preloadFaderShader() {
 
   const hostname = window.location.hostname;
 
-  if (hostname === "jackcaunter.com") {
+  if (hostname === "jackcaunter.github.io") {
     console.log("SHADING in production!");
     const location = window.location;
     const fullPath =
@@ -20,7 +20,7 @@ export function preloadFaderShader() {
     ROOT_DIR = "../";
   } else {
     console.log("SHADING in some other environment!");
-    ROOT_DIR = "../";
+    ROOT_DIR = "/";
   }
   faderShader = loadShader(
     "" + ROOT_DIR + "shader/faderShader.vert",

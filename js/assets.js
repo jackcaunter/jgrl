@@ -25,7 +25,7 @@ if (
   ROOT_DIR = "../";
 } else {
   console.log("Running in some other environment!");
-  ROOT_DIR = "../";
+  ROOT_DIR = "/";
 }
 
 export function preloadAllSprites() {
