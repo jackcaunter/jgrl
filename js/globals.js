@@ -13,7 +13,7 @@ export function setGlobals() {
     console.log("really Runnning in development!");
   } else {
     console.log("really Runnning in PRODUCTION!");
-    console.log("Version 1.01");
+    console.log("Version 1.02");
   }
 
   globalThis.ROOMS = [

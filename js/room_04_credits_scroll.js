@@ -62,7 +62,7 @@ export function instantiate_room_credits_scroll() {
         if (hitPersonalBest) {
           g.tint(255, 255, 48, 255);
           g.drawSentence(
-            "Run Completed In: " + formatTime(stats.currentRunFrames),
+            "Run Time: " + formatTime(stats.currentRunFrames),
             x,
             y,
           );
