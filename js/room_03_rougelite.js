@@ -432,7 +432,7 @@ export function instantiate_room_rougelite() {
           type: "unlock_character",
           probability:
             !globalThis.unlocked_a_character && !characterUnlocked[15]
-              ? 0.08
+              ? 0.1
               : 0,
         },
         { type: "4shrug", probability: 0.2 },
@@ -2413,6 +2413,9 @@ export function instantiate_room_rougelite() {
     // let spd_dec = 0.8;
     // let xspd = 0;
     // let yspd = 0;
+
+    // game started. start the timer
+    onRunStart();
 
     // let text = `TRY THE ARROW KEYS`;
     let text = ``;

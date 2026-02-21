@@ -13,7 +13,7 @@ export function setGlobals() {
     console.log("really Runnning in development!");
   } else {
     console.log("really Runnning in PRODUCTION!");
-    console.log("Version 1.00");
+    console.log("Version 1.01");
   }
 
   globalThis.ROOMS = [
@@ -404,6 +404,8 @@ const DEFAULT_STATS = {
   upgradesCollectedThisRun: 0,
   deaths: 0,
   charactersUnlocked: 0,
+  currentRunFrames: 0,
+  bestRunFrames: null, // null = no best time yet
 };
 globalThis.stats = DEFAULT_STATS;
 
@@ -445,5 +447,20 @@ globalThis.onCharacterUnlocked = function () {
     (value) => value === true,
   ).length;
 
+  saveStats();
+};
+//
+globalThis.onRunStart = function () {
+  stats.currentRunFrames = 0;
+  saveStats();
+};
+globalThis.onRunComplete = function () {
+  if (
+    !stats.bestRunFrames ||
+    stats.bestRunFrames === null ||
+    stats.currentRunFrames < stats.bestRunFrames
+  ) {
+    stats.bestRunFrames = stats.currentRunFrames;
+  }
   saveStats();
 };

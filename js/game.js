@@ -92,6 +92,7 @@ function updateGameStats() {
     return;
   }
   stats.frames++;
+  stats.currentRunFrames++;
   if (stats.frames % 60 === 0) saveStats();
 }
 

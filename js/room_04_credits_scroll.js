@@ -12,6 +12,7 @@ export function instantiate_room_credits_scroll() {
       music_started: false,
       showing_stats: false,
       stats_display_y: 32,
+      runComplete: false,
       update() {
         set_fade_level(-4);
         // Start music on first frame
@@ -23,6 +24,11 @@ export function instantiate_room_credits_scroll() {
         //   this.music_started = true;
         // }
 
+        if (!this.runComplete) {
+          onRunComplete();
+          this.runComplete = true;
+        }
+
         // Black background
         g.fill(0);
         g.noStroke();
@@ -33,37 +39,79 @@ export function instantiate_room_credits_scroll() {
 
         g.drawSentence("jg rougelite", 124, 16);
 
+        const hitPersonalBest = stats.currentRunFrames === stats.bestRunFrames;
+
         let y = this.stats_display_y;
         let x = 10;
 
         g.drawSentence("FINAL STATS", x, y);
-        y += 24;
-        g.drawSentence("Time Played: " + formatTime(stats.frames), x, y);
-        y += 16;
-        g.drawSentence("Enemies Defeated: " + stats.enemiesDefeated, x, y);
-        y += 16;
-        g.drawSentence("Upgrades Collected: " + stats.upgradesCollected, x, y);
-        y += 16;
+        y += 14;
+        if (hitPersonalBest) {
+          let frame_to_sine = Math.sin(((2 * Math.PI) / 60) * frameCount);
+          frame_to_sine = (frame_to_sine + 1) * (255 / 2);
+          g.tint(255, 255, 48, frame_to_sine);
+        }
+        g.drawSentence(
+          "Run Time: " +
+            formatTime(stats.currentRunFrames) +
+            (hitPersonalBest ? " (BEST!)" : ""),
+          x,
+          y,
+        );
+
+        if (hitPersonalBest) {
+          g.tint(255, 255, 48, 255);
+          g.drawSentence(
+            "Run Completed In: " + formatTime(stats.currentRunFrames),
+            x,
+            y,
+          );
+        }
+        y += 14;
+        g.drawSentence(
+          "Best Time: " +
+            (stats.bestRunFrames !== null
+              ? formatTime(stats.bestRunFrames)
+              : "--:--"),
+          x,
+          y,
+        );
+        g.tint(255);
+        y += 14;
         g.drawSentence(
           "Enemies Defeated (This run): " + stats.enemiesDefeatedThisRun,
           x,
           y,
         );
-        y += 16;
+        y += 14;
         g.drawSentence(
           "Upgrades Collected (This run): " + stats.upgradesCollectedThisRun,
           x,
           y,
         );
-        y += 16;
+        y += 14;
+        g.drawSentence("Total Playtime: " + formatTime(stats.frames), x, y);
+        y += 14;
+        g.drawSentence(
+          "Total Enemies Defeated: " + stats.enemiesDefeated,
+          x,
+          y,
+        );
+        y += 14;
+        g.drawSentence(
+          "Total Upgrades Collected: " + stats.upgradesCollected,
+          x,
+          y,
+        );
+        y += 14;
         g.drawSentence("Failed Runs: " + stats.deaths, x, y);
-        y += 16;
+        y += 14;
         g.drawSentence(
           "Characters Unlocked: " + stats.charactersUnlocked + "/16",
           x,
           y,
         );
-        y += 16;
+        y += 14;
         g.drawSentence("Completion: " + getCompletionPercent() + "%", x, y);
 
         // draw the ... player stats
